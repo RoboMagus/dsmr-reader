@@ -85,7 +85,8 @@ class LiveXhrElectricityConsumption(ConfigurableLoginRequiredMixin, View):
             electricity = electricity.filter(id__gt=latest_delta_id)
 
         for current in electricity:
-            read_at = formats.date_format(timezone.localtime(current.read_at), 'DSMR_GRAPH_LONG_TIME_FORMAT')
+            #read_at = formats.date_format(timezone.localtime(current.read_at), 'DSMR_GRAPH_LONG_TIME_FORMAT')
+            read_at = timezone.localtime(current.read_at)
 
             data['read_at'].append(read_at)
 
@@ -147,7 +148,8 @@ class LiveXhrGasConsumption(ConfigurableLoginRequiredMixin, View):
         gas = GasConsumption.objects.filter(read_at__gt=base_timestamp).order_by('read_at')
 
         for current in gas:
-            read_at = formats.date_format(timezone.localtime(current.read_at), 'DSMR_GRAPH_LONG_TIME_FORMAT')
+            #read_at = formats.date_format(timezone.localtime(current.read_at), 'DSMR_GRAPH_LONG_TIME_FORMAT')
+            read_at = timezone.localtime(current.read_at)
             data['read_at'].append(read_at)
             data['currently_delivered'].append(float(current.currently_delivered))
 
@@ -173,7 +175,8 @@ class LiveXhrTemperature(ConfigurableLoginRequiredMixin, View):
         temperature = TemperatureReading.objects.filter(read_at__gt=base_timestamp).order_by('read_at')
 
         for current in temperature:
-            read_at = formats.date_format(timezone.localtime(current.read_at), 'DSMR_GRAPH_LONG_TIME_FORMAT')
+            #read_at = formats.date_format(timezone.localtime(current.read_at), 'DSMR_GRAPH_LONG_TIME_FORMAT')
+            read_at = timezone.localtime(current.read_at)
             data['read_at'].append(read_at)
             data['degrees_celcius'].append(float(current.degrees_celcius))
 

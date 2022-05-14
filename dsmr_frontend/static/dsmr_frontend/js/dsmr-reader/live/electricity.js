@@ -3,9 +3,8 @@ $(document).ready(function () {
 
     let x_axis = [
         {
-            type: 'category',
+            type: 'time',
             boundaryGap: false,
-            data: [],
             axisLabel: {
                 color: TEXTSTYLE_COLOR
             }
@@ -15,7 +14,6 @@ $(document).ready(function () {
             show: false,
             gridIndex: 1,
             boundaryGap: false,
-            data: [],
             axisLabel: {
                 color: TEXTSTYLE_COLOR
             }
@@ -113,6 +111,11 @@ $(document).ready(function () {
                 type: 'line',
                 smooth: true,
                 areaStyle: {},
+                connectNulls: false, // Show gaps if there are gaps.
+                encode: {
+                  x: 0,
+                  y: 1
+                }, // First element in tuple is timestamp, second is data point.
                 data: []
             },
             {
@@ -122,6 +125,11 @@ $(document).ready(function () {
                 type: 'line',
                 smooth: true,
                 areaStyle: {},
+                connectNulls: false, // Show gaps if there are gaps.
+                encode: {
+                  x: 0,
+                  y: 1
+                }, // First element in tuple is timestamp, second is data point.
                 data: []
             }
         ],
@@ -143,15 +151,21 @@ $(document).ready(function () {
             delete echarts_electricity_update_options.series[1];
         }
 
+        function getDataPoints(series) {
+            let data = [];
+            for (var i = 0; i < xhr_data.read_at.length; i++) {
+                data.push([xhr_data.read_at[i], xhr_data[series][i]]);
+            }
+            return data;
+        }
+
         echarts_electricity_graph.hideLoading();
         echarts_electricity_graph.setOption(echarts_electricity_initial_options);
 
-        echarts_electricity_update_options.xAxis[0].data = xhr_data.read_at;
-        echarts_electricity_update_options.series[0].data = xhr_data.currently_delivered;
+        echarts_electricity_update_options.series[0].data = getDataPoints('currently_delivered');
 
         if (CAPABILITY_ELECTRICITY_RETURNED) {
-            echarts_electricity_update_options.xAxis[1].data = xhr_data.read_at;
-            echarts_electricity_update_options.series[1].data = xhr_data.currently_returned;
+            echarts_electricity_update_options.series[1].data = getDataPoints('currently_returned');
         }
 
         echarts_electricity_graph.setOption(echarts_electricity_update_options);
@@ -174,12 +188,18 @@ $(document).ready(function () {
                     return;
                 }
 
-                echarts_electricity_update_options.xAxis[0].data = echarts_electricity_update_options.xAxis[0].data.concat(xhr_data.read_at)
-                echarts_electricity_update_options.series[0].data = echarts_electricity_update_options.series[0].data.concat(xhr_data.currently_delivered);
+                function getDataPoints(series) {
+                    let data = [];
+                    for (var i = 0; i < xhr_data.read_at.length; i++) {
+                        data.push([xhr_data.read_at[i], xhr_data[series][i]]);
+                    }
+                    return data;
+                }
+
+                echarts_electricity_update_options.series[0].data = echarts_electricity_update_options.series[0].data.concat(getDataPoints('currently_delivered'););
 
                 if (CAPABILITY_ELECTRICITY_RETURNED) {
-                    echarts_electricity_update_options.xAxis[1].data = echarts_electricity_update_options.xAxis[1].data.concat(xhr_data.read_at)
-                    echarts_electricity_update_options.series[1].data = echarts_electricity_update_options.series[1].data.concat(xhr_data.currently_returned);
+                    echarts_electricity_update_options.series[1].data = echarts_electricity_update_options.series[1].data.concat(getDataPoints('currently_returned'));
                 }
 
                 latest_delta_id = xhr_data.latest_delta_id;
